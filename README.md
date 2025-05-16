@@ -70,24 +70,6 @@ A complete IoT and AI-based solution for modern farming, integrating real-time e
 | **HTML / CSS / JS**     | Dashboard UI                                      |
 | **Blynk / ThingSpeak**  | Alternate IoT platforms for visualization         |
 
-## 📊 Architecture Overview
-
-                +-------------------+
-                |   Sensors (Field) |
-                +--------+----------+
-                         |
-                +--------v--------+         +-------------------+
-                |  Arduino Mega   +-------->+ GSM Module (SMS)  |
-                +--------+--------+         +-------------------+
-                         |
-         +---------------v----------------+
-         |   Cloud Dashboard / Firebase   |
-         +---------------+----------------+
-                         |
-           +-------------v------------+
-           |  User Monitoring & Alerts|
-           +--------------------------+
-
 
 ### Monitoring
 - Collect sensor data and visualize it on a dashboard.
