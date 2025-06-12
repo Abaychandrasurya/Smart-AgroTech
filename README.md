@@ -28,7 +28,7 @@ A complete IoT and AI-based solution for modern farming, integrating real-time e
 |-------------------------------|--------------------------------------------------------------------------|
 | **Arduino Mega 2560**         | Main microcontroller to connect multiple sensors                        |
 | **Arduino Nano**              | microcontroller to monitor remote sensors                               |
-| **NRF24L01+PA+LNA**           | data transmission between microcontrollers                              |
+| **LoRa**                      | data transmission between microcontrollers                              |
 | **ESP32-CAM**                 | Captures plant images for disease/pest detection                        |
 | **Soil Moisture Sensor**      | Automates irrigation based on moisture level                            |
 | **DHT22 / SHT31**             | Measures temperature and humidity                                       |
