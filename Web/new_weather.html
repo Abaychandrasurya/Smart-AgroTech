@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .login-background {
+            background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .glassmorphism {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dashboard-bg {
+            background-color: #232323;
+        }
+        .card {
+            background-color: #2E2E2E;
+            border-radius: 1.5rem; /* 24px */
+        }
+        .day-forecast-card {
+            background-color: #2E2E2E;
+            border-radius: 1.25rem; /* 20px */
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .day-forecast-card.active, .day-forecast-card:hover {
+            background-color: #3B3B3B;
+            transform: translateY(-4px);
+        }
+        .uv-gauge-bg {
+            fill: none;
+            stroke: #4A4A4A;
+            stroke-width: 10;
+        }
+        .uv-gauge-fill {
+            fill: none;
+            stroke: #FFC700;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <!-- Login Page -->
+    <div id="login-page" class="login-background min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 space-y-6 rounded-3xl glassmorphism">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-white">Smart Agriculture</h1>
+                <p class="text-gray-200">Please sign in to continue</p>
+            </div>
+
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="sr-only">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Username" required
+                           class="w-full px-4 py-3 rounded-lg bg-gray-700 bg-opacity-50 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-300">
+                </div>
+
+                <div>
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                           class="w-full px-4 py-3 rounded-lg bg-gray-700 bg-opacity-50 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-300">
+                </div>
+                
+                <div class="flex items-center justify-between text-gray-200">
+                    <label class="flex items-center">
+                        <input type="radio" name="role" value="User" class="form-radio h-4 w-4 text-green-500 bg-gray-700 border-gray-500 focus:ring-green-400" checked>
+                        <span class="ml-2">User</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="role" value="Admin" class="form-radio h-4 w-4 text-green-500 bg-gray-700 border-gray-500 focus:ring-green-400">
+                        <span class="ml-2">Admin</span>
+                    </label>
+                </div>
+
+                <p id="error-message" class="text-red-400 text-sm text-center hidden"></p>
+
+                <div>
+                    <button type="submit"
+                            class="w-full px-4 py-3 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-gray-800 transition-colors duration-300">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weather Dashboard Page -->
+    <div id="dashboard-page" class="dashboard-bg min-h-screen p-4 sm:p-6 md:p-8 hidden">
+        <div class="max-w-screen-xl mx-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white" id="dashboard-date">Loading...</h1>
+                    <p class="text-gray-400" id="dashboard-day-date">Fetching weather data</p>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/40x40/6366F1/FFFFFF?text=A" alt="User" class="w-10 h-10 rounded-full" id="user-avatar">
+                        <div>
+                            <p class="font-semibold text-white" id="user-name">Admin</p>
+                            <p class="text-sm text-gray-400" id="user-role">Admin</p>
+                        </div>
+                    </div>
+                     <button id="logout-button" class="px-4 py-2 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900 transition-colors duration-300">
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <main id="dashboard-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8 hidden">
+                <!-- Content will be injected here after fetching data -->
+            </main>
+            
+            <div id="dashboard-loader" class="flex flex-col items-center justify-center min-h-[60vh]">
+                <div class="loader"></div>
+                <p id="loader-message" class="text-white mt-4 text-lg">Getting your location and weather...</p>
+                <p class="text-gray-400 mt-2">Please allow location access when prompted.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
+        const errorMessage = document.getElementById('error-message');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const dashboardLoader = document.getElementById('dashboard-loader');
+        const loaderMessage = document.getElementById('loader-message');
+
+        // --- MOCK USER DATA ---
+        const users = {
+            admin: { pass: 'admin123', role: 'Admin', name: 'Admin User' },
+            user: { pass: 'user123', role: 'User', name: 'Clayton Walter' }
+        };
+        
+        // --- WEATHER ICONS (SVG) ---
+        const weatherIcons = {
+            'Sunny': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#FFC700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+            'Partly Cloudy': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M22 10a5 5 0 0 0-5-5h-1.26a8 8 0 0 0-14.48 4.5A5.5 5.5 0 0 0 6.5 20H18"></path></svg>`,
+            'Cloudy': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>`,
+            'Rain': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#63B3ED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>`,
+        };
+
+        function getWeatherDescription(code) {
+            const descriptions = {
+                0: { icon: 'Sunny', text: 'Clear sky' }, 1: { icon: 'Partly Cloudy', text: 'Mainly clear' },
+                2: { icon: 'Partly Cloudy', text: 'Partly cloudy' }, 3: { icon: 'Cloudy', text: 'Overcast' },
+                45: { icon: 'Cloudy', text: 'Fog' }, 48: { icon: 'Cloudy', text: 'Depositing rime fog' },
+                51: { icon: 'Rain', text: 'Light drizzle' }, 53: { icon: 'Rain', text: 'Drizzle' }, 55: { icon: 'Rain', text: 'Intense drizzle' },
+                61: { icon: 'Rain', text: 'Slight rain' }, 63: { icon: 'Rain', text: 'Moderate rain' }, 65: { icon: 'Rain', text: 'Heavy rain' },
+                80: { icon: 'Rain', text: 'Slight rain showers' }, 81: { icon: 'Rain', text: 'Rain showers' }, 82: { icon: 'Rain', text: 'Violent rain showers' }
+            };
+            return descriptions[code] || { icon: 'Cloudy', text: 'Cloudy' };
+        }
+
+        // --- LIVE WEATHER FUNCTIONS ---
+        async function getWeatherData(lat, lon) {
+            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Weather data not available.');
+                const data = await response.json();
+                
+                const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                const geoResponse = await fetch(geoUrl);
+                const geoData = await geoResponse.json();
+                const locationName = `${geoData.address.city || geoData.address.town || geoData.address.village || 'Unknown Location'}, ${geoData.address.country || ''}`;
+
+                return { ...data, locationName };
+            } catch (error) {
+                console.error("Failed to fetch weather data:", error);
+                loaderMessage.textContent = "Could not fetch weather data. Please try again later.";
+                return null;
+            }
+        }
+
+        function processWeatherData(data) {
+            return data.daily.time.map((date, i) => {
+                const weatherInfo = getWeatherDescription(data.daily.weather_code[i]);
+                return {
+                    date: new Date(date),
+                    temp: Math.round(data.daily.temperature_2m_max[i]),
+                    condition: weatherInfo.icon,
+                    full_condition: weatherInfo.text,
+                    wind: data.current.wind_speed_10m,
+                    uv: data.daily.uv_index_max[i],
+                    humidity: data.current.relative_humidity_2m,
+                    feels_like: Math.round(data.current.apparent_temperature),
+                    sunrise: new Date(data.daily.sunrise[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    sunset: new Date(data.daily.sunset[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                };
+            });
+        }
+
+        async function loadDashboardWithLocation(latitude, longitude, userData) {
+            const weatherData = await getWeatherData(latitude, longitude);
+            
+            if (weatherData) {
+                buildDashboardHTML();
+                document.getElementById('weather-user-name').textContent = userData.name;
+                document.getElementById('weather-location').textContent = weatherData.locationName;
+                
+                const processedData = processWeatherData(weatherData);
+                populateWeekForecast(processedData);
+                
+                const todayIndex = 0;
+                updateDashboardUI(processedData[todayIndex]);
+                document.querySelector(`.day-forecast-card[data-index='${todayIndex}']`).classList.add('active');
+
+                dashboardLoader.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+            }
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateDashboardUI(data) {
+            document.getElementById('weather-icon').innerHTML = weatherIcons[data.condition] || weatherIcons['Cloudy'];
+            document.getElementById('weather-temp').textContent = data.temp;
+            document.getElementById('weather-condition').textContent = data.full_condition;
+            
+            document.getElementById('wind-status-value').textContent = data.wind.toFixed(2);
+            drawWindChart();
+            document.getElementById('uv-index-value').textContent = data.uv.toFixed(2);
+            updateUvGauge(data.uv);
+            document.getElementById('sunrise-time').textContent = data.sunrise;
+            document.getElementById('sunset-time').textContent = data.sunset;
+            document.getElementById('humidity-value').textContent = data.humidity;
+            document.getElementById('feels-like-value').textContent = data.feels_like;
+            
+            const now = new Date(data.date);
+            document.getElementById('dashboard-date').textContent = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+            document.getElementById('dashboard-day-date').textContent = now.toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+        
+        function drawWindChart() {
+            const container = document.getElementById('wind-chart');
+            if(!container) return;
+            container.innerHTML = '';
+            container.className = 'h-12 w-full flex items-end justify-between';
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                const height = Math.random() * 80 + 20;
+                bar.className = 'bg-gray-500 rounded-full';
+                bar.style.width = '3px';
+                bar.style.height = `${height}%`;
+                container.appendChild(bar);
+            }
+        }
+        
+        function updateUvGauge(uvValue) {
+            const gaugeFill = document.getElementById('uv-gauge-fill');
+            if(!gaugeFill) return;
+            const maxUv = 12;
+            const circumference = 125.6;
+            const progress = Math.min(uvValue / maxUv, 1);
+            const offset = circumference * (1 - progress);
+            gaugeFill.style.strokeDashoffset = offset;
+        }
+
+        function populateWeekForecast(weeklyData) {
+            const container = document.getElementById('week-forecast-container');
+            if(!container) return;
+            container.innerHTML = '';
+            weeklyData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = 'day-forecast-card p-4 text-center';
+                card.dataset.index = index;
+                card.innerHTML = `
+                    <p class="font-semibold text-gray-400">${data.date.toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                    <div class="w-12 h-12 mx-auto my-2">${weatherIcons[data.condition]}</div>
+                    <p class="font-bold text-white text-xl">${data.temp}°</p>
+                `;
+                container.appendChild(card);
+            });
+            
+            container.addEventListener('click', function(e) {
+                const card = e.target.closest('.day-forecast-card');
+                if (!card) return;
+                document.querySelectorAll('.day-forecast-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                const index = parseInt(card.dataset.index);
+                updateDashboardUI(weeklyData[index]);
+            });
+        }
+        
+        function buildDashboardHTML() {
+             dashboardContent.innerHTML = `
+                <!-- Left Column -->
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="card p-6">
+                        <p class="text-gray-400" id="weather-location">Fetching location...</p>
+                        <h2 class="text-lg font-semibold text-white" id="weather-user-name"></h2>
+                        <div class="flex items-center my-4">
+                            <div id="weather-icon" class="w-24 h-24 mr-4"></div>
+                            <div>
+                                <p class="text-6xl font-bold text-white"><span id="weather-temp">--</span>°C</p>
+                                <p class="text-lg text-gray-300" id="weather-condition">--</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="card p-6 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1561583539-252a58455167?q=80&w=1887&auto=format&fit=crop')">
+                        <h3 class="font-semibold text-white">Explore global map</h3>
+                        <p class="text-gray-200 text-sm my-2">Explore global map of wind, weather and ocean condition.</p>
+                        <button class="bg-white text-black font-semibold py-2 px-4 rounded-lg mt-4">Get Started</button>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div id="week-forecast-container" class="grid grid-cols-4 md:grid-cols-7 gap-4"></div>
+                    <div>
+                        <h3 class="font-semibold text-white text-xl mb-4">Today's overview</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">Wind Status</h4><p class="text-3xl font-bold text-white mb-4"><span id="wind-status-value">--</span> km/h</p><div id="wind-chart"></div></div>
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">UV Index</h4><div class="relative w-40 h-20 mx-auto"><svg class="w-full h-full" viewBox="0 0 100 50"><path d="M 10 50 A 40 40 0 0 1 90 50" class="uv-gauge-bg"></path><path id="uv-gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" class="uv-gauge-fill" style="stroke-dasharray: 125.6; stroke-dashoffset: 125.6;"></path></svg><div class="absolute inset-0 flex items-center justify-center"><p class="text-3xl font-bold text-white" id="uv-index-value">--</p></div></div><p class="text-center text-gray-400 mt-2">UV</p></div>
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">Sunrise & Sunset</h4><div class="flex items-center space-x-4 mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFC700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"></path><line x1="12" y1="2" x2="12" y2="9"></line><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line><line x1="1" y1="18" x2="3" y2="18"></line><line x1="21" y1="18" x2="23" y2="18"></line><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line><line x1="23" y1="22" x2="1" y2="22"></line><polyline points="8 6 12 2 16 6"></polyline></svg><div><p class="font-semibold text-white" id="sunrise-time">--:--</p></div></div><div class="flex items-center space-x-4"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"></path><line x1="12" y1="9" x2="12" y2="12"></line><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line><line x1="1" y1="18" x2="3" y2="18"></line><line x1="21" y1="18" x2="23" y2="18"></line><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line><line x1="23" y1="22" x2="1" y2="22"></line><polyline points="8 12 12 16 16 12"></polyline></svg><div><p class="font-semibold text-white" id="sunset-time">--:--</p></div></div></div>
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">Humidity</h4><p class="text-3xl font-bold text-white mb-4"><span id="humidity-value">--</span>%</p><p class="text-sm text-gray-300">Loading...</p></div>
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">Visibility</h4><p class="text-3xl font-bold text-white mb-4"><span id="visibility-value">--</span> km</p><p class="text-sm text-gray-300">Loading...</p></div>
+                            <div class="card p-6"><h4 class="text-gray-400 mb-2">Feels like</h4><p class="text-3xl font-bold text-white mb-4"><span id="feels-like-value">--</span>°</p><p class="text-sm text-gray-300">Loading...</p></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- LOGIN/LOGOUT LOGIC ---
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = loginForm.username.value;
+            const password = loginForm.password.value;
+            
+            if (users[username] && users[username].pass === password) {
+                const userData = users[username];
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                dashboardLoader.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                
+                document.getElementById('user-name').textContent = userData.name;
+                document.getElementById('user-role').textContent = userData.role;
+                document.getElementById('user-avatar').src = `https://placehold.co/40x40/6366F1/FFFFFF?text=${userData.name.charAt(0)}`;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        loadDashboardWithLocation(latitude, longitude, userData);
+                    },
+                    (error) => {
+                        console.error("Geolocation error:", error);
+                        loaderMessage.textContent = "Could not get location. Loading default forecast...";
+                        // Fallback to a default location (Tenkamijar, IN)
+                        const defaultLatitude = 13.03;
+                        const defaultLongitude = 74.88;
+                        loadDashboardWithLocation(defaultLatitude, defaultLongitude, userData);
+                    }
+                );
+
+                errorMessage.classList.add('hidden');
+            } else {
+                errorMessage.textContent = 'Invalid username or password.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        logoutButton.addEventListener('click', function() {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            loginForm.reset();
+            dashboardContent.innerHTML = ''; // Clear dashboard on logout
+            dashboardContent.classList.add('hidden');
+            dashboardLoader.classList.remove('hidden');
+        });
+
+    });
+    </script>
+</body>
+</html>
