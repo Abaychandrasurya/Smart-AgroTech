@@ -1,5 +1,5 @@
-# Smart-Agricultural-Management-System
-To develop a smart farming system that monitors various environmental factors and automates tasks like irrigation and fertilization to optimize crop yields and resource usage.
+# Smart-AgroTech
+To develop a Smart AgroTech system that monitors various environmental factors and automates tasks like irrigation and fertilization to optimize crop yields and resource usage.
 
 # IoT Project
 
@@ -91,7 +91,7 @@ A complete IoT and AI-based solution for modern farming, integrating real-time e
 - **Data Processing and Analysis**: Scripts or applications to process and analyze the sensor data.
 
 ## Getting Started
-1. Clone the repository: `https://github.com/Abaychandrasurya/Smart-Farming-System.git`
+1. Clone the repository: `https://github.com/Abaychandrasurya/Smart-AgroTech`
 2. Install the necessary dependencies.
 3. Upload the firmware to the microcontrollers.
 4. Deploy the web application to the cloud platform.
