@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .login-background {
+            background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Login Page -->
+    <div id="login-page" class="login-background min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 space-y-6 rounded-2xl glassmorphism">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-white">Smart Agriculture</h1>
+                <p class="text-gray-200">Please sign in to continue</p>
+            </div>
+
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="sr-only">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Username" required
+                           class="w-full px-4 py-3 rounded-lg bg-gray-700 bg-opacity-50 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-300">
+                </div>
+
+                <div>
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                           class="w-full px-4 py-3 rounded-lg bg-gray-700 bg-opacity-50 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-300">
+                </div>
+                
+                <div class="flex items-center justify-between text-gray-200">
+                    <label class="flex items-center">
+                        <input type="radio" name="role" value="user" class="form-radio h-4 w-4 text-green-500 bg-gray-700 border-gray-500 focus:ring-green-400" checked>
+                        <span class="ml-2">User</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="role" value="admin" class="form-radio h-4 w-4 text-green-500 bg-gray-700 border-gray-500 focus:ring-green-400">
+                        <span class="ml-2">Admin</span>
+                    </label>
+                </div>
+
+                <p id="error-message" class="text-red-400 text-sm text-center hidden"></p>
+
+                <div>
+                    <button type="submit"
+                            class="w-full px-4 py-3 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-gray-800 transition-colors duration-300">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weather Dashboard Page -->
+    <div id="dashboard-page" class="min-h-screen bg-gray-900 p-4 sm:p-6 md:p-8 hidden">
+        <div class="max-w-7xl mx-auto">
+            <header class="flex justify-between items-center mb-6">
+                 <h1 class="text-2xl sm:text-3xl font-bold text-white">Weather Forecast</h1>
+                 <button id="logout-button" class="px-4 py-2 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900 transition-colors duration-300">
+                    Logout
+                </button>
+            </header>
+
+            <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Current Weather Card -->
+                <div class="lg:col-span-1 bg-gray-800 rounded-2xl p-6 flex flex-col items-center text-center">
+                    <h2 id="location" class="text-2xl font-semibold text-white">Tenkamijar, IN</h2>
+                    <div id="current-weather-icon" class="w-32 h-32 my-4">
+                        <!-- Weather icon will be injected here -->
+                    </div>
+                    <p id="current-temp" class="text-6xl font-bold text-white">29°C</p>
+                    <p id="current-condition" class="text-xl text-blue-300 capitalize">Partly Cloudy</p>
+                    <div class="w-full grid grid-cols-3 gap-4 mt-8 text-white">
+                        <div class="text-center">
+                            <p class="font-bold text-lg" id="humidity">84%</p>
+                            <p class="text-sm text-gray-400">Humidity</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-bold text-lg" id="wind-speed">12 km/h</p>
+                            <p class="text-sm text-gray-400">Wind</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-bold text-lg" id="rain-chance">40%</p>
+                            <p class="text-sm text-gray-400">Rain</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5-Day Forecast -->
+                <div class="lg:col-span-2 bg-gray-800 rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">5-Day Forecast</h2>
+                    <div id="forecast-container" class="space-y-3">
+                        <!-- Forecast items will be injected here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
+        const errorMessage = document.getElementById('error-message');
+
+        // --- MOCK USER DATA ---
+        const users = {
+            admin: 'admin123',
+            user: 'user123'
+        };
+
+        // --- WEATHER DATA & ICONS ---
+        // Using static data as a placeholder for a real weather API
+        const weatherIcons = {
+            'Sunny': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#FFC700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+            'Partly Cloudy': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M22 10a5 5 0 0 0-5-5h-1.26a8 8 0 0 0-14.48 4.5A5.5 5.5 0 0 0 6.5 20H18"></path></svg>`,
+            'Cloudy': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>`,
+            'Rain': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#63B3ED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>`,
+            'Thunderstorm': `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="#FFC700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5A5 5 0 0 0 16 7h-1.26a8 8 0 1 0-11.62 9"></path><polyline points="8 16 12 20 16 16"></polyline></svg>`
+        };
+
+        const forecastData = [
+            { day: 'Tuesday', temp_high: 30, temp_low: 24, condition: 'Rain' },
+            { day: 'Wednesday', temp_high: 31, temp_low: 25, condition: 'Thunderstorm' },
+            { day: 'Thursday', temp_high: 32, temp_low: 26, condition: 'Sunny' },
+            { day: 'Friday', temp_high: 30, temp_low: 25, condition: 'Partly Cloudy' },
+            { day: 'Saturday', temp_high: 29, temp_low: 24, condition: 'Rain' },
+        ];
+
+        function populateWeatherDashboard() {
+            document.getElementById('current-weather-icon').innerHTML = weatherIcons['Partly Cloudy'];
+            const forecastContainer = document.getElementById('forecast-container');
+            forecastContainer.innerHTML = ''; // Clear previous entries
+            
+            forecastData.forEach(item => {
+                const forecastItem = document.createElement('div');
+                forecastItem.className = 'flex items-center justify-between bg-gray-700 p-3 rounded-lg';
+                forecastItem.innerHTML = `
+                    <p class="font-medium text-white w-1/4">${item.day}</p>
+                    <div class="w-8 h-8 text-gray-400">${weatherIcons[item.condition]}</div>
+                    <p class="text-gray-300 w-1/4 text-center">${item.condition}</p>
+                    <p class="font-medium text-white w-1/4 text-right">${item.temp_high}° / ${item.temp_low}°</p>
+                `;
+                forecastContainer.appendChild(forecastItem);
+            });
+        }
+
+        // --- LOGIN/LOGOUT LOGIC ---
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = loginForm.username.value;
+            const password = loginForm.password.value;
+            const role = loginForm.role.value;
+
+            if (users[username] && users[username] === password) {
+                // Successful login
+                console.log(`Logged in as ${role}: ${username}`);
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.remove('hidden');
+                populateWeatherDashboard();
+                errorMessage.classList.add('hidden');
+            } else {
+                // Failed login
+                errorMessage.textContent = 'Invalid username or password.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        logoutButton.addEventListener('click', function() {
+            dashboardPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            loginForm.reset(); // Clear the form fields
+        });
+    });
+    </script>
+</body>
+</html>
