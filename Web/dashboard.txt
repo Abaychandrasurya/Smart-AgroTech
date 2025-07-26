@@ -1,7 +1,0 @@
-Copy the Code: Copy the entire HTML code above and save it as an .html file (e.g., dashboard.html).
-
-Set Your Auth Token: Open the file in a text editor. Find the line const BLYNK_AUTH_TOKEN = "YOUR_BLYNK_AUTH_TOKEN"; and replace "YOUR_BLYNK_AUTH_TOKEN" with your actual Blynk authentication token.
-
-Configure Pins (Optional): The virtual pins (V1, V2, etc.) are already set up to match the layout in the image. If your Blynk project uses different virtual pins for these functions, you can easily change them in the switches, statuses, and gauges arrays in the JavaScript section.
-
-Open in Browser: Open the dashboard.html file in your web browser.
