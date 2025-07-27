@@ -1,5 +1,5 @@
 # Smart-AgroTech
-To develop a Smart AgroTech system that monitors various environmental factors and automates tasks like irrigation and fertilization to optimize crop yields and resource usage.
+To develop a Smart AgroTech system that monitors various environmental factors and automates tasks like irrigation and fertilization to optimize crop yields and resource usage using the distributed Sensors connected through wireless communication .
 
 # IoT Project
 
@@ -15,6 +15,7 @@ A complete IoT and AI-based solution for modern farming, integrating real-time e
 - 💨 Air quality monitoring for sensitive crops
 - 🤖 Live camera feed for security
 - 🚷 Motion Based Protection and Alert System
+- 🛜 Distributed Sensing Method
 - 📲 GSM-based alerts via SMS / HTTP
 - 🌐 Cloud dashboard for live monitoring & control
 - 🔌 Automated control of pumps, lights via relays
